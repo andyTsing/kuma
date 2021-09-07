@@ -19,10 +19,17 @@ import (
 var log = core.Log.WithName("kds")
 
 type Context struct {
+<<<<<<< HEAD
 	ZoneClientCtx         context.Context
 	GlobalServerCallbacks []mux.Callbacks
 	GlobalProvidedFilter  reconcile.ResourceFilter
 	ZoneProvidedFilter    reconcile.ResourceFilter
+=======
+	ZoneClientCtx        context.Context
+	GlobalProvidedFilter reconcile.ResourceFilter
+	ZoneProvidedFilter   reconcile.ResourceFilter
+	GlobalServerFilters  []mux.Filter
+>>>>>>> c77077d7 (chore(kuma-cp) kds global mux filters (#2746))
 	// Configs contains the names of system.ConfigResource that will be transferred from Global to Zone
 	Configs map[string]bool
 }

@@ -62,8 +62,12 @@ func Setup(rt runtime.Runtime) (err error) {
 		}()
 		return nil
 	})
+<<<<<<< HEAD
 	callbacks := append(rt.KDSContext().GlobalServerCallbacks, onSessionStarted)
 	return rt.Add(mux.NewServer(callbacks, *rt.Config().Multizone.Global.KDS, rt.Metrics()))
+=======
+	return rt.Add(mux.NewServer(onSessionStarted, rt.KDSContext().GlobalServerFilters, *rt.Config().Multizone.Global.KDS, rt.Metrics()))
+>>>>>>> c77077d7 (chore(kuma-cp) kds global mux filters (#2746))
 }
 
 func createZoneIfAbsent(name string, resManager manager.ResourceManager) error {

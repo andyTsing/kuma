@@ -27,6 +27,10 @@ var (
 	muxServerLog = core.Log.WithName("mux-server")
 )
 
+type Filter interface {
+	InterceptSession(session Session) error
+}
+
 type Callbacks interface {
 	OnSessionStarted(session Session) error
 }
@@ -38,7 +42,12 @@ func (f OnSessionStartedFunc) OnSessionStarted(session Session) error {
 
 type server struct {
 	config    multizone.KdsServerConfig
+<<<<<<< HEAD
 	callbacks []Callbacks
+=======
+	callbacks Callbacks
+	filters   []Filter
+>>>>>>> c77077d7 (chore(kuma-cp) kds global mux filters (#2746))
 	metrics   core_metrics.Metrics
 }
 
@@ -46,9 +55,14 @@ var (
 	_ component.Component = &server{}
 )
 
+<<<<<<< HEAD
 func NewServer(callbacks []Callbacks, config multizone.KdsServerConfig, metrics core_metrics.Metrics) component.Component {
+=======
+func NewServer(callbacks Callbacks, filters []Filter, config multizone.KdsServerConfig, metrics core_metrics.Metrics) component.Component {
+>>>>>>> c77077d7 (chore(kuma-cp) kds global mux filters (#2746))
 	return &server{
 		callbacks: callbacks,
+		filters:   filters,
 		config:    config,
 		metrics:   metrics,
 	}
@@ -121,6 +135,7 @@ func (s *server) StreamMessage(stream mesh_proto.MultiplexService_StreamMessageS
 	clientID := md["client-id"][0]
 	log := muxServerLog.WithValues("client-id", clientID)
 	log.Info("initializing Kuma Discovery Service (KDS) stream for global-zone sync of resources")
+<<<<<<< HEAD
 	stop := make(chan struct{})
 	session := NewSession(clientID, stream, stop)
 	defer close(stop)
@@ -129,6 +144,18 @@ func (s *server) StreamMessage(stream mesh_proto.MultiplexService_StreamMessageS
 			log.Info("closing KDS stream", "reason", err.Error())
 			return err
 		}
+=======
+	session := NewSession(clientID, stream)
+	for _, filter := range s.filters {
+		if err := filter.InterceptSession(session); err != nil {
+			log.Error(err, "closing KDS stream following a callback error")
+			return err
+		}
+	}
+	if err := s.callbacks.OnSessionStarted(session); err != nil {
+		log.Error(err, "closing KDS stream following a callback error")
+		return err
+>>>>>>> c77077d7 (chore(kuma-cp) kds global mux filters (#2746))
 	}
 	<-stream.Context().Done()
 	log.Info("KDS stream is closed")
